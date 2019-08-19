@@ -4,6 +4,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include <avr/eeprom.h>
+#include <stdint.h>
 
 #include "main.h"
 #include "board.h"
@@ -125,7 +126,7 @@ void main_parse_rx_message(uint8_t *rx_data, uint8_t length, uint8_t *source_add
   }
   else if (strncmp((char *)rx_data, CMD_MAIN_GET_ROTATOR_HEADING, 3) == 0) { // Get the current rotator heading
     snprintf((char *)rf_data, 8, "%s %i", CMD_MAIN_GET_ROTATOR_HEADING, status.rotator_curr_heading_deg);
-    XBEE_TRANSMIT_FRAME();
+    XBEE_TRANSMIT_FRAME();    
   }
   else if (strncmp((char *)rx_data, CMD_MAIN_GET_STATUS, 3) == 0) { // Get the current status
     calculate_battery_params();
@@ -170,7 +171,6 @@ void main_parse_rx_message(uint8_t *rx_data, uint8_t length, uint8_t *source_add
   }    
   else if (strncmp((char *)rx_data, CMD_MAIN_GET_OUTSIDE_TEMP, 3) == 0) { // Get the outside temperature
     sprintf((char *)rf_data,"%s %.1f", CMD_MAIN_GET_OUTSIDE_TEMP, (double)status.temp_outside);
-
     XBEE_TRANSMIT_FRAME();
   }    
   else if (strncmp((char *)rx_data, CMD_MAIN_SET_CHARGE_PUSH_INTERVAL, 3) == 0) { // Clear the errors

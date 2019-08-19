@@ -11,7 +11,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     addressHiZ = QByteArray::fromHex("0013A20040D50A4D");
     addressInband = QByteArray::fromHex("0013A20040F7B346");
 
-    imagePath = "images/map.png";
+    //Should not be a direct path but easier when using QtCreator
+    imagePath = "C:/Users/Mikael/Documents/inband-ctrl/build-XBeeController-Desktop_Qt_5_13_0_MinGW_64_bit-Debug/debug/images/map.png";
     sizeWidth = 600;
     sizeHeight = 600;
 
@@ -35,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     timerPollXbee = new QTimer(this);
     connect(timerPollXbee, SIGNAL(timeout()), this, SLOT(timerPollXbeeTimeout()));
     timerPollXbee->start(1000);
+
+    image = QImage(imagePath);
+
+    image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied ,Qt::ColorOnly);
 }
 
 MainWindow::~MainWindow() {
@@ -61,9 +66,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
-
-    image = QImage(imagePath);
-    image.convertToFormat(QImage::Format_ARGB32_Premultiplied ,Qt::ColorOnly);
 
     painter.drawImage(-2 , -2 , image);
 
