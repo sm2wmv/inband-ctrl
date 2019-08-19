@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+  <loop>false</loop>
+  <repeat_times>1</repeat_times>
+  <repeat_period>500</repeat_period>
+  <frames_list>
+    <frame name="Set K2 High">
+      <payload>7E001610010013A20040F7B346FFFE000053444F204849203223</payload>
+    </frame>
+    <frame name="Set K2 Low">
+      <payload>7E001610010013A20040F7B346FFFE000053444F204C4F203219</payload>
+    </frame>
+    <frame name="Set K7 High">
+      <payload>7E001610010013A20040F7B346FFFE000053444F20484920371E</payload>
+    </frame>
+    <frame name="Set K7 Low">
+      <payload>7E001610010013A20040F7B346FFFE000053444F204C4F203714</payload>
+    </frame>
+    <frame name="Get rotator heading">
+      <payload>7E001110010013A20040F7B346FFFE00004752482B</payload>
+    </frame>
+    <frame name="Get current">
+      <payload>7E001110010013A20040F7B346FFFE000047424340</payload>
+    </frame>
+    <frame name="Set heading 120">
+      <payload>7E001510010013A20040F7B346FFFE0000535248203132306C</payload>
+    </frame>
+    <frame name="Set heading 320">
+      <payload>7E001510010013A20040F7B346FFFE0000535248203332306A</payload>
+    </frame>
+    <frame name="Get voltage">
+      <payload>7E001110010013A20040F7B346FFFE00004742562D</payload>
+    </frame>
+    <frame name="Calibrate CCW lim">
+      <payload>7E001610010013A20040F7B346FFFE000053524320434320302E</payload>
+    </frame>
+    <frame name="Calibrate CW lim">
+      <payload>7E001810010013A20040F7B346FFFE000053524320435720333539A9</payload>
+    </frame>
+    <frame name="Calibrate Save">
+      <payload>7E001410010013A20040F7B346FFFE00005352432053456C</payload>
+    </frame>
+    <frame name="Get Status">
+      <payload>7E001110010013A20040F7B346FFFE00004743532F</payload>
+    </frame>
+    <frame name="Clear Errors">
+      <payload>7E001110010013A20040F7B346FFFE000053454331</payload>
+    </frame>
+    <frame name="Enable charging">
+      <payload>7E001110010013A20040F7B346FFFE00005343472F</payload>
+    </frame>
+    <frame name="Get charge count">
+      <payload>7E001110010013A20040F7B346FFFE00004743433F</payload>
+    </frame>
+    <frame name="Set charge interval">
+      <payload>7E001610010013A20040F7B346FFFE0000534349203134343044</payload>
+    </frame>
+    <frame name="Get temp - BOX">
+      <payload>7E001110010013A20040F7B346FFFE00004754422F</payload>
+    </frame>
+    <frame name="Get temp - OUT">
+      <payload>7E001110010013A20040F7B346FFFE000047544F22</payload>
+    </frame>
+  </frames_list>
+</data>

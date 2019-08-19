@@ -1,0 +1,69 @@
+<NotepadPlus>
+    <Project name="Inband">
+        <Folder name="include">
+            <File name="include\a2d.h" />
+            <File name="include\avrlibdefs.h" />
+            <File name="include\avrlibtypes.h" />
+            <File name="include\board.h" />
+            <File name="include\commands.h" />
+            <File name="include\delay.h" />
+            <File name="include\event_queue.h" />
+            <File name="include\global.h" />
+            <File name="include\helper.h" />
+            <File name="include\init.h" />
+            <File name="include\main.h" />
+            <File name="include\queue.h" />
+            <File name="include\usart.h" />
+            <File name="include\xbee_interface.h" />
+        </Folder>
+        <Folder name="src">
+            <Folder name=".dep">
+                <File name="src\.dep\a2d.o.d" />
+                <File name="src\.dep\delay.o.d" />
+                <File name="src\.dep\event_queue.o.d" />
+                <File name="src\.dep\helper.o.d" />
+                <File name="src\.dep\init.o.d" />
+                <File name="src\.dep\main.o.d" />
+                <File name="src\.dep\queue.o.d" />
+                <File name="src\.dep\usart.o.d" />
+                <File name="src\.dep\xbee_interface.o.d" />
+            </Folder>
+            <File name="src\a2d.c" />
+            <File name="src\a2d.lst" />
+            <File name="src\a2d.o" />
+            <File name="src\delay.c" />
+            <File name="src\delay.lst" />
+            <File name="src\delay.o" />
+            <File name="src\event_queue.c" />
+            <File name="src\event_queue.lst" />
+            <File name="src\event_queue.o" />
+            <File name="src\helper.c" />
+            <File name="src\helper.lst" />
+            <File name="src\helper.o" />
+            <File name="src\init.c" />
+            <File name="src\init.lst" />
+            <File name="src\init.o" />
+            <File name="src\main.c" />
+            <File name="src\main.eep" />
+            <File name="src\main.elf" />
+            <File name="src\main.hex" />
+            <File name="src\main.lss" />
+            <File name="src\main.lst" />
+            <File name="src\main.map" />
+            <File name="src\main.o" />
+            <File name="src\main.sym" />
+            <File name="src\makefile" />
+            <File name="src\queue.c" />
+            <File name="src\queue.lst" />
+            <File name="src\queue.o" />
+            <File name="src\usart.c" />
+            <File name="src\usart.lst" />
+            <File name="src\usart.o" />
+            <File name="src\xbee_interface.c" />
+            <File name="src\xbee_interface.lst" />
+            <File name="src\xbee_interface.o" />
+        </Folder>
+        <File name="makefile.inc" />
+        <File name="session.c" />
+    </Project>
+</NotepadPlus>
