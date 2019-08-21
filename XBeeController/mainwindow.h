@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "qtxb.h"
+#include "terminal.h"
 
 #include <QMainWindow>
 #include <QDebug>
@@ -53,8 +54,11 @@ public:
     ~MainWindow();
     void updateGUI(QString command);
     void setTargetDir(int newDir);
+    QByteArray getAddressInband();
+    QByteArray getAddressHiZ();
 private:
     Ui::MainWindow *ui;
+    Terminal *terminal;
     QString imagePath;
     QImage image;
     int sizeWidth;
@@ -119,6 +123,7 @@ private slots:
     void on_pushButtonClearErrors_clicked();
     void closeEvent(QCloseEvent *event);
     void quitApplication();
+    void on_pushButtonTerminal_clicked();
 };
 
 #endif // MAINWINDOW_H

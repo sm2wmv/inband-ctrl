@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     ui->setupUi(this);
 
     addressHiZ = QByteArray::fromHex("0013A20040D50A4D");
-    addressInband = QByteArray::fromHex("0013A20040F7B346");
+    //
+    addressInband = QByteArray::fromHex("0013A20040E328ED");
 
     //Should not be a direct path but easier when using QtCreator
     imagePath = "C:/Users/Mikael/Documents/inband-ctrl/build-XBeeController-Desktop_Qt_5_13_0_MinGW_64_bit-Debug/debug/images/map.png";
@@ -21,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     antBeamWidth = 62;
 
     serial = new QSerialPort();
-    serial->setPortName("com15");
+    serial->setPortName("com3");
 
     xb = new QTXB(serial);
 
@@ -40,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     image = QImage(imagePath);
 
     image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied ,Qt::ColorOnly);
+    terminal = new Terminal();
+    terminal->setXBeeController(xb,getAddressInband());
 }
 
 MainWindow::~MainWindow() {
@@ -82,6 +85,14 @@ void MainWindow::paintEvent(QPaintEvent *event) {
         painter.setBrush(QBrush(QColor(Qt::TARGET_DIR_BEAMWIDTH_COLOR),Qt::SolidPattern));
         painter.drawPie(rectangle,(360-(-90+targetAzimuthAngle + 0.5))*16,0.5*16);
     }
+}
+
+QByteArray MainWindow::getAddressInband() {
+    return(addressInband);
+}
+
+QByteArray MainWindow::getAddressHiZ() {
+    return(addressHiZ);
 }
 
 void MainWindow::setTargetDir(int newDir) {
@@ -199,6 +210,8 @@ void MainWindow::parseXBeeTransmitStatus(TransmitStatus *digiMeshPacket) {
 
 void MainWindow::parseXBeeRXIndicator(RXIndicator *digiMeshPacket) {
     QList<QByteArray> fields = digiMeshPacket->getData().split(' ');
+
+    terminal->addTerminalText(QString(digiMeshPacket->getData()));
 
     if (fields.at(0) == "GCS") {
         parseGCSData(&fields);
@@ -448,4 +461,8 @@ void MainWindow::on_pushButtonNone_clicked() {
 
 void MainWindow::on_pushButtonClearErrors_clicked() {
     xb->unicast(addressInband, "SEC");
+}
+
+void MainWindow::on_pushButtonTerminal_clicked() {
+    terminal->show();
 }

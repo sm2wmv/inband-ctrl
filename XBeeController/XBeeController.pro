@@ -13,7 +13,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \ 
+        mainwindow.cpp \
+        terminal.cpp \
     qtxb/txrequestexplicit.cpp \
     qtxb/txrequest.cpp \
     qtxb/transmitstatus.cpp \
@@ -45,6 +46,8 @@ HEADERS  += mainwindow.h \
     qtxb/atcommandremote.h \
     qtxb/atcommandqueueparam.h \
     qtxb/atcommand.h \
-    qtxb.h
+    qtxb.h \
+    terminal.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    terminal.ui
