@@ -45,11 +45,11 @@
 #define ADC_CH_OUTSIDE_TMP36  ADC_CH_ADC5
 #define ADC_CH_BOX_TMP36  ADC_CH_ADC7
 
-// VREF / 1024, 5.5982 = resistor divider for the voltage, (5/1024.0)*5.5982
-#define ADC_VOLTAGE_SCALING 0.027335f
+// VREF / 1024, 5.5982 = resistor divider for the voltage, (2.56/1024.0)*5.5982
+#define ADC_VOLTAGE_SCALING 0.0139955f
 
-//  (5.0/1024.0)/(0.003*50)
-#define ADC_CURRENT_SCALING 0.0325521f
+//  (2.56/1024.0)/(0.003*50)
+#define ADC_CURRENT_SCALING 0.0166667f
 
 #define ROTATOR_STATUS_STOPPED        0
 #define ROTATOR_STATUS_CCW            1

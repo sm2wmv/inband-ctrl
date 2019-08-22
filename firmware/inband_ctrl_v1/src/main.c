@@ -133,8 +133,8 @@ void main_parse_rx_message(uint8_t *rx_data, uint8_t length, uint8_t *source_add
 
     //Errors, Rotator status, charge status, current heading, target heading, temperature box, temperature outside, 
     //battery voltage, battery current
-    sprintf((char *)rf_data, "%s %i %i %i %i %i %.1f %.1f %2.2f %2.2f", CMD_MAIN_GET_STATUS, flag_errors, status.rotator_status, status.charge_status,
-            status.rotator_curr_heading_deg, status.rotator_target_heading_deg, (double)status.temp_box, (double)status.temp_outside, (double)status.bat_voltage, (double)status.bat_current);
+    sprintf((char *)rf_data, "%s %i %i %i %i %i %.1f %.1f %2.2f %2.2f %i", CMD_MAIN_GET_STATUS, flag_errors, status.rotator_status, status.charge_status,
+            status.rotator_curr_heading_deg, status.rotator_target_heading_deg, (double)status.temp_box, (double)status.temp_outside, (double)status.bat_voltage, (double)status.bat_current, status.adc_val_direction_filtered);
 
    XBEE_TRANSMIT_FRAME();
   }
@@ -401,52 +401,53 @@ int8_t main_rotate_to(uint16_t target_heading_deg) {
   /* Get the current and target headings and adjust them so that they
       * are within the 0-359 degree range */
 //    target_heading_deg = helper_adjust_range(target_heading_deg);
-    int16_t unadj_current_heading_deg = helper_adc2deg(status.adc_val_direction_filtered, settings.rotator_heading_scale, settings.rotator_ccw_lim_deg);
+printf("TARGET SET TO: %i\n",target_heading_deg);
+    int16_t unadj_current_heading_deg = helper_adc2deg(status.adc_val_direction_filtered, settings.rotator_heading_scale, settings.rotator_adc_val_cw / settings.rotator_heading_scale - settings.rotator_cw_lim_deg);
     int16_t current_heading_deg = helper_adjust_range(unadj_current_heading_deg);
 // 
     if (target_heading_deg == current_heading_deg) {
       return 0;
     }
-// 
-//     //This part written by SM0SVX
-//    /* Find out how far we have to travel in the CW and CCW directions
-//     * respectively to reach the target heading */
-//    int16_t ccw_diff_deg =
-//        helper_adjust_range(current_heading_deg - target_heading_deg);
-//    int16_t cw_diff_deg =
-//        helper_adjust_range(target_heading_deg - current_heading_deg);
-// 
-//    /* Find out if we will hit any rotation limits when going in a
-//      * certain direction */
-//    if (unadj_current_heading_deg - ccw_diff_deg < settings.rotator_ccw_lim_deg) {
-//      ccw_diff_deg = INT16_MAX;
-//    }
-//    if (unadj_current_heading_deg + cw_diff_deg > settings.rotator_cw_lim_deg) {
-//      cw_diff_deg = INT16_MAX;
-//    }
-// 
-//    /* Choose which is the best rotation direction */
-//    int16_t diff_deg;
-//    if (ccw_diff_deg < cw_diff_deg) {
-//      diff_deg = -ccw_diff_deg;
-//    }
-//    else {
-//      diff_deg = cw_diff_deg;
-//    }
-// 
-//    /* If we hit the rotation limits no matter in which direction we go,
-//     * there is no way to reach the target heading. */
-//    if (diff_deg == INT16_MAX) {
-//      return -1;
-//   }
-// 
-//   /* Set up the target heading and check if we should go CW or CCW. */
-//   target_heading_deg = unadj_current_heading_deg;
-//   
-  status.rotator_target_heading = helper_deg2adc(target_heading_deg, settings.rotator_heading_scale, settings.rotator_adc_val_cw / settings.rotator_heading_scale - settings.rotator_cw_lim_deg);
+
+    //This part written by SM0SVX
+   /* Find out how far we have to travel in the CW and CCW directions
+    * respectively to reach the target heading */
+   int16_t ccw_diff_deg =
+       helper_adjust_range(current_heading_deg - target_heading_deg);
+   int16_t cw_diff_deg =
+       helper_adjust_range(target_heading_deg - current_heading_deg);
+       
+   /* Find out if we will hit any rotation limits when going in a
+     * certain direction */
+   if (unadj_current_heading_deg - ccw_diff_deg < settings.rotator_ccw_lim_deg) {
+     ccw_diff_deg = INT16_MAX;
+   }
+   if (unadj_current_heading_deg + cw_diff_deg > settings.rotator_cw_lim_deg) {
+     cw_diff_deg = INT16_MAX;
+   }
+ 
+   /* Choose which is the best rotation direction */
+   int16_t diff_deg;
+   if (ccw_diff_deg < cw_diff_deg) {
+     diff_deg = -ccw_diff_deg;
+   }
+   else {
+     diff_deg = cw_diff_deg;
+   }
+
+   /* If we hit the rotation limits no matter in which direction we go,
+    * there is no way to reach the target heading. */
+   if (diff_deg == INT16_MAX) {
+     return -1;
+  }
+
+  /* Set up the target heading and check if we should go CW or CCW.
+     * Post an event to the state machine to get things going. */
+
+
+  target_heading_deg = unadj_current_heading_deg + diff_deg;
   
-  printf("TARGET: %i\n",status.rotator_target_heading);
-  printf("TARGET deg: %i\n",status.rotator_target_heading_deg);
+  status.rotator_target_heading = helper_deg2adc(target_heading_deg, settings.rotator_heading_scale, settings.rotator_adc_val_cw / settings.rotator_heading_scale - settings.rotator_cw_lim_deg);
   
   if (status.rotator_target_heading > status.adc_val_direction_filtered) {
     return main_rotate_cw();
@@ -556,14 +557,14 @@ int main(void) {
   
     if (ms_counter_temperature > POLL_INTERVAL_TEMPERATURE) {
       status.adc_val_temp_box = a2dConvert10bit(ADC_CH_BOX_TMP36);
-      status.temp_box = (float)(status.adc_val_temp_box - 102.4f)*0.48828125;
-      printf("TEMP BOX: %i %.1fC\n", status.adc_val_temp_box, (double)status.temp_box);
+      status.temp_box = (float)(status.adc_val_temp_box*2.5 - 500)/10;
+      //printf("TEMP BOX: %i %.1fC\n", status.adc_val_temp_box, (double)status.temp_box);
       
       
       status.adc_val_temp_outside = a2dConvert10bit(ADC_CH_OUTSIDE_TMP36);
-      status.temp_outside = (float)(status.adc_val_temp_outside - 102.4f)*0.48828125;
+      status.temp_outside = (float)(status.adc_val_temp_outside*2.5 -500)/10;
       
-      printf("TEMP OUT: %i %.1fC\n", status.adc_val_temp_outside, (double)status.temp_outside);
+      //printf("TEMP OUT: %i %.1fC\n", status.adc_val_temp_outside, (double)status.temp_outside);
       
       ms_counter_temperature = 0;
     }
@@ -596,18 +597,17 @@ int main(void) {
       status.adc_val_direction_filtered = median_filter(a2dConvert10bit(ADC_CH_DIRECTION));
 
       status.rotator_curr_heading_deg = helper_adjust_range(helper_adc2deg(status.adc_val_direction_filtered, settings.rotator_heading_scale, settings.rotator_adc_val_cw / settings.rotator_heading_scale - settings.rotator_cw_lim_deg));
-      printf("ROTATOR HEADING: %i - %i\n", status.rotator_curr_heading_deg, status.adc_val_direction_filtered);
 
       if ((status.rotator_status == ROTATOR_STATUS_CW) || (status.rotator_status == ROTATOR_STATUS_CCW)) {
-	//End limit reachced CCW
-	if (status.adc_val_direction_filtered <= settings.rotator_adc_val_ccw) {
-	  //Force the rotator to stop rotation to the CCW direction
-	  main_rotator_stop_ccw();
-	}  //End limit reached CW
-	else if (status.adc_val_direction_filtered >= settings.rotator_adc_val_cw) {
-	  //Force the rotator to stop rotation to the CW direction
-	  main_rotator_stop_cw();
-	}
+        //End limit reachced CCW
+        if (status.adc_val_direction_filtered <= settings.rotator_adc_val_ccw) {
+          //Force the rotator to stop rotation to the CCW direction
+          main_rotator_stop_ccw();
+        }  //End limit reached CW
+        else if (status.adc_val_direction_filtered >= settings.rotator_adc_val_cw) {
+          //Force the rotator to stop rotation to the CW direction
+          main_rotator_stop_cw();
+        }
       }	
 	  
       if (status.rotator_status == ROTATOR_STATUS_CW) {
@@ -686,7 +686,7 @@ ISR(SIG_OUTPUT_COMPARE0) {
     counter_battery_charge++;
   
     //Check if the rotator is actually turning
-    if ((status.rotator_status == ROTATOR_STATUS_CCW) && (status.rotator_status == ROTATOR_STATUS_CW)) { 
+    if ((status.rotator_status == ROTATOR_STATUS_CCW) || (status.rotator_status == ROTATOR_STATUS_CW)) { 
       if (counter_stuck_tick >= ROTATOR_STUCK_TICK_LIMIT) {
         if (abs(rotator_last_tick_pos - status.rotator_curr_heading_deg) < ROTATOR_STUCK_TICK_DEG_LIMIT) {
           main_rotator_stop();
@@ -700,6 +700,10 @@ ISR(SIG_OUTPUT_COMPARE0) {
       counter_stuck_tick++;
     }
   }
+
+  if ((ms_counter % 1000) == 0)
+    printf("ROTATOR HEADING: %i - %i\n", status.rotator_curr_heading_deg, status.adc_val_direction_filtered);
+
   
   xbee_interface_ms_tick();
 }
