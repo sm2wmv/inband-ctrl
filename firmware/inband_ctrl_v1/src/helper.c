@@ -21,8 +21,8 @@ int16_t helper_convert_atoi(uint8_t *data, uint8_t length) {
   return(atoi(temp));
 }
 
-int16_t helper_adc2deg(int16_t deg, double scale, int16_t offset) {
-  return (deg / scale - offset);
+int16_t helper_adc2deg(int16_t adc, double scale, int16_t offset) {
+  return (adc / scale - offset);
 }
 
 int16_t helper_deg2adc(int16_t deg, double scale, int16_t offset) {
@@ -30,11 +30,15 @@ int16_t helper_deg2adc(int16_t deg, double scale, int16_t offset) {
 }
 
 int16_t helper_adjust_range(int16_t deg) {
-  while (deg < 0) {
-    deg += 360;
+  int16_t retval = deg;
+  
+  while (retval < 0) {
+    retval += 360;
   }
-  while (deg > 359) {
-    deg -= 360;
+  
+  while (retval > 359) {
+    retval -= 360;
   }
-  return (deg);
+  
+  return (retval);
 }

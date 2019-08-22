@@ -22,10 +22,10 @@
 //Sub commands are always two characters
 
 //Set the rotator calibration for counter clock-wise direction
-//Example, "SRC CC 520"
+//Example, "SRC CC -120"
 #define CMD_SUB_ROTATOR_CALIBRATION_CCW     "CC"
 //Set the rotator calibration for clock-wise direction
-//Example, "SRC CW -120"
+//Example, "SRC CW 520"
 #define CMD_SUB_ROTATOR_CALIBRATION_CW      "CW"
 //Saves the rotator calibration settings to the EEPROM
 #define CMD_SUB_ROTATOR_CALIBRATION_SAVE    "SE"

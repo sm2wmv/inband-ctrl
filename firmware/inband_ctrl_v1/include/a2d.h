@@ -54,7 +54,7 @@
 #define ADC_REFERENCE_RSVD		0x02	///< 0x02 -> Reserved
 #define ADC_REFERENCE_256V		0x03	///< 0x03 -> Internal 2.56V VREF
 // default value
-#define ADC_REFERENCE			ADC_REFERENCE_AVCC
+#define ADC_REFERENCE	ADC_REFERENCE_256V
 // do not change the mask value
 #define ADC_REFERENCE_MASK		0xC0
 
