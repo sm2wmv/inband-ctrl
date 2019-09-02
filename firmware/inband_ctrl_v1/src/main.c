@@ -377,7 +377,8 @@ int8_t main_rotator_stop_ccw(void) {
   return(0);
 }
 
-int8_t main_rotator_stop_cw(void) {
+int8_t 
+main_rotator_stop_cw(void) {
   printf("ROTATOR >> STOPPED, CW END LIMIT REACHED\n");
   
   main_set_error(ERROR_ROTATOR_END_LIMIT_CW);
@@ -540,9 +541,11 @@ int main(void) {
   printf("CHARGE INTERVAL: %i\n", settings.charge_push_interval);
     
   //Read the direction so we are sure that the median filter is full
-  status.adc_val_direction_filtered = median_filter(a2dConvert10bit(ADC_CH_DIRECTION));
-  status.adc_val_direction_filtered = median_filter(a2dConvert10bit(ADC_CH_DIRECTION));
-  status.adc_val_direction_filtered = median_filter(a2dConvert10bit(ADC_CH_DIRECTION));
+  //The reason for this 1023-x is because of the indication pot I use is inverted from the rotational direction
+  //because of it being a hall effect sensor with an 0-5V output and not invertable
+  status.adc_val_direction_filtered = median_filter(1023-a2dConvert10bit(ADC_CH_DIRECTION));
+  status.adc_val_direction_filtered = median_filter(1023-a2dConvert10bit(ADC_CH_DIRECTION));
+  status.adc_val_direction_filtered = median_filter(1023-a2dConvert10bit(ADC_CH_DIRECTION));
   
   main_enable_charging();
   
@@ -594,7 +597,9 @@ int main(void) {
     }
 
     if (ms_counter_direction > POLL_INTERVAL_DIRECTION) {
-      status.adc_val_direction_filtered = median_filter(a2dConvert10bit(ADC_CH_DIRECTION));
+        //The reason for this 1023-x is because of the indication pot I use is inverted from the rotational direction
+  //because of it being a hall effect sensor with an 0-5V output and not invertable
+      status.adc_val_direction_filtered = median_filter(1023-a2dConvert10bit(ADC_CH_DIRECTION));
 
       status.rotator_curr_heading_deg = helper_adjust_range(helper_adc2deg(status.adc_val_direction_filtered, settings.rotator_heading_scale, settings.rotator_adc_val_cw / settings.rotator_heading_scale - settings.rotator_cw_lim_deg));
 
