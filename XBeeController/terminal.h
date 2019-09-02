@@ -21,6 +21,8 @@ public:
 private slots:
     void on_lineEditInput_returnPressed();
 
+    void on_checkBoxEnableOutput_stateChanged(int arg1);
+
 private:
     Ui::Terminal *ui;
     QTXB *xb;

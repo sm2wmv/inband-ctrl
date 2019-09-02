@@ -5,6 +5,14 @@
 
 #define PI 3.1415
 
+#define PIXMAP_BLANK QCoreApplication::applicationDirPath()+"/leds/led_blank_15x15.png"
+#define PIXMAP_RED_ON QCoreApplication::applicationDirPath()+"/leds/led_red_on_15x15.png"
+#define PIXMAP_GREEN_ON QCoreApplication::applicationDirPath()+"/leds/led_green_on_15x15.png"
+#define PIXMAP_RED_OFF QCoreApplication::applicationDirPath()+"/leds/led_red_off_15x15.png"
+#define PIXMAP_GREEN_OFF QCoreApplication::applicationDirPath()+"/leds/led_green_off_15x15.png"
+#define PIXMAP_YELLOW_ON QCoreApplication::applicationDirPath()+"/leds/led_yellow_on_15x15.png"
+#define PIXMAP_YELLOW_OFF QCoreApplication::applicationDirPath()+"/leds/led_yellow_off_15x15.png"
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
@@ -294,19 +302,41 @@ void MainWindow::sendXbeeHiZDirSW2() {
 void MainWindow::on_pushButtonHiZNW_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirNW1()));
     QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirNW2()));
+
+    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
 }
 
 void MainWindow::on_pushButtonHiZNE_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirNE1()));
-    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirNE2()));}
+    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirNE2()));
+
+    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
+}
 
 void MainWindow::on_pushButtonHiZSE_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirSE1()));
-    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirSE2()));}
+    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirSE2()));
+
+    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
+}
 
 void MainWindow::on_pushButtonHiZSW_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirSW1()));
     QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirSW2()));
+
+    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
 }
 
 void MainWindow::activateBand(enum band bandIndex) {
@@ -317,38 +347,43 @@ void MainWindow::activateBand(enum band bandIndex) {
             xb->unicast(addressInband, "SDO HI 12");
             ui->pushButton160m->setChecked(true);
             ui->labelCurrentBandValue->setText("160m");
+            ui->labelLEDBand160->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_80:
             xb->unicast(addressInband, "SDO HI 11");
             ui->pushButton80m->setChecked(true);
             ui->labelCurrentBandValue->setText("80m");
+            ui->labelLEDBand80->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_40:
             xb->unicast(addressInband, "SDO HI 10");
             ui->pushButton40m->setChecked(true);
             ui->labelCurrentBandValue->setText("40m");
+            ui->labelLEDBand40->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_20:
             xb->unicast(addressInband, "SDO HI 9");
             ui->pushButton20m->setChecked(true);
             ui->labelCurrentBandValue->setText("20m");
+            ui->labelLEDBand20->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_15:
             xb->unicast(addressInband, "SDO HI 9");
             ui->pushButton15m->setChecked(true);
             ui->labelCurrentBandValue->setText("15m");
+            ui->labelLEDBand15->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_10:
             xb->unicast(addressInband, "SDO HI 9");
             ui->pushButton10m->setChecked(true);
             ui->labelCurrentBandValue->setText("10m");
+            ui->labelLEDBand10->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         default:
             break;
     }
 
     currentBand = bandIndex;
-    ui->pushButtonNone->setChecked(false);
 }
 
 void MainWindow::deactivateBand(enum band bandIndex) {
@@ -357,26 +392,32 @@ void MainWindow::deactivateBand(enum band bandIndex) {
         case BAND_160:
             xb->unicast(addressInband, "SDO LO 12");
             ui->pushButton160m->setChecked(false);
+            ui->labelLEDBand160->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_80:
             xb->unicast(addressInband, "SDO LO 11");
             ui->pushButton80m->setChecked(false);
+            ui->labelLEDBand80->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_40:
             xb->unicast(addressInband, "SDO LO 10");
             ui->pushButton40m->setChecked(false);
+            ui->labelLEDBand40->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_20:
             xb->unicast(addressInband, "SDO LO 9");
             ui->pushButton20m->setChecked(false);
+            ui->labelLEDBand20->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_15:
             xb->unicast(addressInband, "SDO LO 9");
             ui->pushButton15m->setChecked(false);
+            ui->labelLEDBand15->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_10:
             xb->unicast(addressInband, "SDO LO 9");
             ui->pushButton10m->setChecked(false);
+            ui->labelLEDBand10->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         default:
             break;
@@ -384,7 +425,6 @@ void MainWindow::deactivateBand(enum band bandIndex) {
 
     currentBand = BAND_NONE;
 
-    ui->pushButtonNone->setChecked(true);
     ui->labelCurrentBandValue->setText("None");
 }
 
@@ -456,8 +496,6 @@ void MainWindow::on_pushButtonNone_clicked() {
     deactivateBand(BAND_15);
     deactivateBand(BAND_10);*/
     deactivateBand(currentBand);
-
-    ui->pushButtonNone->setChecked(true);
 }
 
 void MainWindow::on_pushButtonClearErrors_clicked() {

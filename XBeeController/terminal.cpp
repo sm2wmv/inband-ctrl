@@ -15,7 +15,8 @@ Terminal::~Terminal()
 }
 
 void Terminal::addTerminalText(QString text) {
-    ui->textEditOutput->append(text);
+    if (ui->checkBoxEnableOutput->isChecked())
+        ui->textEditOutput->append(text);
 }
 
 void Terminal::setXBeeController(QTXB *currxb, QByteArray addressInband) {
@@ -26,4 +27,8 @@ void Terminal::setXBeeController(QTXB *currxb, QByteArray addressInband) {
 void Terminal::on_lineEditInput_returnPressed() {
     xb->unicast(addressInband, ui->lineEditInput->text());
     ui->lineEditInput->clear();
+}
+
+void Terminal::on_checkBoxEnableOutput_stateChanged(int arg1) {
+
 }
