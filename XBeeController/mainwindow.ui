@@ -278,7 +278,7 @@
       <x>610</x>
       <y>228</y>
       <width>171</width>
-      <height>381</height>
+      <height>441</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -494,6 +494,13 @@
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxBandControlAuto">
+       <property name="text">
+        <string>Automatic</string>
        </property>
       </widget>
      </item>

@@ -176,6 +176,7 @@ void MainWindow::parseGCSData(QList<QByteArray> *list) {
     temperatureOutside = list->at(7).toFloat();
     batteryVoltage = list->at(8).toFloat();
     batteryCurrent = list->at(9).toFloat();
+    currADCValue = list->at(10).toInt();
 
 /*    qDebug() << "RAW DATA\n--------";
     for (int i=0;i<list->length(); i++) {

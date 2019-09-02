@@ -69,6 +69,7 @@ private:
     int errorStatus;
     int rotatorStatus;
     int chargeStatus;
+    int currADCValue;
     float temperatureBox;
     float temperatureOutside;
     float batteryVoltage;
