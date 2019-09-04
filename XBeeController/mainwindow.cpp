@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     addressInband = QByteArray::fromHex("0013A20040E328ED");
 
     //Should not be a direct path but easier when using QtCreator
-    imagePath = "C:/Users/Mikael/Documents/inband-ctrl/build-XBeeController-Desktop_Qt_5_13_0_MinGW_64_bit-Debug/debug/images/map.png";
+    imagePath = "C:/Users/Mikael/Documents/inband-ctrl/build-XBeeController-Desktop_Qt_5_13_0_MinGW_64_bit-Debug/debug/images/map2.png";
     sizeWidth = 600;
     sizeHeight = 600;
 

@@ -249,15 +249,13 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame { 
-   border: 2px solid darkYellow
-} </string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
     <property name="lineWidth">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="text">
      <string/>
