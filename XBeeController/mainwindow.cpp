@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QXmlStreamReader>
+
 #include <math.h>
 
 #define PI 3.1415
@@ -17,11 +19,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     ui->setupUi(this);
 
     addressHiZ = QByteArray::fromHex("0013A20040D50A4D");
-    //
     addressInband = QByteArray::fromHex("0013A20040E328ED");
 
     //Should not be a direct path but easier when using QtCreator
-    imagePath = "C:/Users/Mikael/Documents/inband-ctrl/build-XBeeController-Desktop_Qt_5_13_0_MinGW_64_bit-Debug/debug/images/map2.png";
+    imagePath = QCoreApplication::applicationDirPath()+"/images/map2.png";
     sizeWidth = 600;
     sizeHeight = 600;
 
@@ -30,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     antBeamWidth = 62;
 
     serial = new QSerialPort();
-    serial->setPortName("com3");
+    serial->setPortName("com5");
 
     xb = new QTXB(serial);
 
@@ -51,6 +52,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied ,Qt::ColorOnly);
     terminal = new Terminal();
     terminal->setXBeeController(xb,getAddressInband());
+
+    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDBand10->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDBand15->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDBand20->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDBand40->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDBand80->setPixmap(QPixmap(PIXMAP_BLANK));
+    ui->labelLEDBand160->setPixmap(QPixmap(PIXMAP_BLANK));
+
+    currTXFreq = 0;
+
+    radioServer = new UDPServer();
+    radioServer->initSocket();
+    connect(radioServer, SIGNAL(dataAvailable(char *,qint64, QHostAddress *, quint16 *)),SLOT(radioDataAvailable(char *,qint64, QHostAddress *, quint16 *)));
 }
 
 MainWindow::~MainWindow() {
@@ -241,6 +259,8 @@ void MainWindow::parseXBeeRemoteCommandResponse(RemoteCommandResponse *digiMeshP
 
 void MainWindow::timerPollXbeeTimeout() {
     xb->unicast(addressInband, "GCS");
+
+    //radioServer.readPendingDatagrams();
 }
 
 void MainWindow::on_pushButtonPreset1_clicked() {
@@ -301,7 +321,7 @@ void MainWindow::sendXbeeHiZDirSW2() {
 
 void MainWindow::on_pushButtonHiZNW_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirNW1()));
-    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirNW2()));
+    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirNW2()));
 
     ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
     ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
@@ -311,7 +331,7 @@ void MainWindow::on_pushButtonHiZNW_clicked() {
 
 void MainWindow::on_pushButtonHiZNE_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirNE1()));
-    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirNE2()));
+    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirNE2()));
 
     ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
     ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_GREEN_ON));
@@ -321,7 +341,7 @@ void MainWindow::on_pushButtonHiZNE_clicked() {
 
 void MainWindow::on_pushButtonHiZSE_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirSE1()));
-    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirSE2()));
+    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirSE2()));
 
     ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
     ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
@@ -331,7 +351,7 @@ void MainWindow::on_pushButtonHiZSE_clicked() {
 
 void MainWindow::on_pushButtonHiZSW_clicked() {
     QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirSW1()));
-    QTimer::singleShot(250, this, SLOT(sendXbeeHiZDirSW2()));
+    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirSW2()));
 
     ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
     ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
@@ -504,4 +524,48 @@ void MainWindow::on_pushButtonClearErrors_clicked() {
 
 void MainWindow::on_pushButtonTerminal_clicked() {
     terminal->show();
+}
+
+void MainWindow::radioDataAvailable(char *data, qint64 size, QHostAddress *fromAddr, quint16 *port) {
+    QXmlStreamReader xml(data);
+
+    int txFreq = 0;
+
+    while(!xml.atEnd()) {
+        xml.readNext();
+        if (xml.isStartElement()) {
+            QString name = xml.name().toString();
+
+            if (name == "TXFreq") {
+                txFreq = xml.readElementText().toInt();
+            }
+        }
+    }
+
+    if (ui->checkBoxBandControlAuto) {
+        if (txFreq != currTXFreq) {
+            if ((txFreq > 10000) && txFreq < 250000) {
+                on_pushButton160m_clicked(true);
+            }
+            else if ((txFreq > 250000) && txFreq < 400000) {
+                on_pushButton80m_clicked(true);
+            }
+            else if ((txFreq > 650000) && txFreq < 800000) {
+                on_pushButton40m_clicked(true);
+            }
+            else if ((txFreq > 1300000) && txFreq < 1500000) {
+                on_pushButton20m_clicked(true);
+            }
+            else if ((txFreq > 2000000) && txFreq < 2200000) {
+                on_pushButton15m_clicked(true);
+            }
+            else if ((txFreq > 2700000) && txFreq < 3000000) {
+                on_pushButton10m_clicked(true);
+            }
+            else
+                on_pushButtonNone_clicked();
+
+            currTXFreq = txFreq;
+        }
+    }
 }

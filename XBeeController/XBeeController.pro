@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets serialport
 
@@ -29,7 +29,8 @@ SOURCES += main.cpp\
     qtxb/atcommandremote.cpp \
     qtxb/atcommandqueueparam.cpp \
     qtxb/atcommand.cpp \
-    qtxb.cpp
+    qtxb.cpp \
+    udpserver.cpp
 
 HEADERS  += mainwindow.h \
     qtxb/txrequestexplicit.h \
@@ -47,7 +48,8 @@ HEADERS  += mainwindow.h \
     qtxb/atcommandqueueparam.h \
     qtxb/atcommand.h \
     qtxb.h \
-    terminal.h
+    terminal.h \
+    udpserver.h
 
 FORMS    += mainwindow.ui \
     terminal.ui

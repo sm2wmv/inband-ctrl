@@ -3,6 +3,7 @@
 
 #include "qtxb.h"
 #include "terminal.h"
+#include "udpserver.h"
 
 #include <QMainWindow>
 #include <QDebug>
@@ -83,7 +84,8 @@ private:
     enum band currentBand;
     void deactivateBand(enum band bandIndex);
     void activateBand(enum band bandIndex);
-
+    UDPServer *radioServer;
+    int currTXFreq;
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent ( QMouseEvent * event );
@@ -125,6 +127,7 @@ private slots:
     void closeEvent(QCloseEvent *event);
     void quitApplication();
     void on_pushButtonTerminal_clicked();
+    void radioDataAvailable(char *data, qint64 size, QHostAddress *fromAddr, quint16 *port);
 };
 
 #endif // MAINWINDOW_H
