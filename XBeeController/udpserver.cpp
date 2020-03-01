@@ -9,7 +9,7 @@ UDPServer::UDPServer(QObject *parent) : QObject(parent)
 void UDPServer::initSocket()
 {
     udpSocket = new QUdpSocket(this);
-    udpSocket->bind(QHostAddress("192.168.1.161"), 12060);
+    udpSocket->bind(QHostAddress("192.168.1.81"), 12060);
 
     connect(udpSocket, SIGNAL(readyRead()),this, SLOT(readPendingDatagrams()));
 }

@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     addressInband = QByteArray::fromHex("0013A20040E328ED");
 
     //Should not be a direct path but easier when using QtCreator
-    imagePath = QCoreApplication::applicationDirPath()+"/images/map2.png";
+    imagePath = "/home/pi/inband-ctrl/XBeeController/images/map2.png";
     sizeWidth = 600;
     sizeHeight = 600;
 
@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     antBeamWidth = 62;
 
     serial = new QSerialPort();
-    serial->setPortName("com5");
+    serial->setPortName("/dev/ttyUSB0");
 
     xb = new QTXB(serial);
 
@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     radioServer = new UDPServer();
     radioServer->initSocket();
     connect(radioServer, SIGNAL(dataAvailable(char *,qint64, QHostAddress *, quint16 *)),SLOT(radioDataAvailable(char *,qint64, QHostAddress *, quint16 *)));
+    this->setCursor(QCursor( Qt::BlankCursor ));
 }
 
 MainWindow::~MainWindow() {
@@ -127,7 +128,8 @@ void MainWindow::setTargetDir(int newDir) {
         cmd.append("SRH ");
         cmd.append(QString::number(newDir));
 
-        xb->unicast(addressInband, cmd);
+        terminal->addTerminalText(">> "+cmd);
+	xb->unicast(addressInband, cmd);
         qDebug() << "NEW DIR: " << newDir;
     }
 }
@@ -238,7 +240,7 @@ void MainWindow::parseXBeeTransmitStatus(TransmitStatus *digiMeshPacket) {
 void MainWindow::parseXBeeRXIndicator(RXIndicator *digiMeshPacket) {
     QList<QByteArray> fields = digiMeshPacket->getData().split(' ');
 
-    terminal->addTerminalText(QString(digiMeshPacket->getData()));
+    terminal->addTerminalText("<< "+QString(digiMeshPacket->getData()));
 
     if (fields.at(0) == "GCS") {
         parseGCSData(&fields);
@@ -258,7 +260,9 @@ void MainWindow::parseXBeeRemoteCommandResponse(RemoteCommandResponse *digiMeshP
 }
 
 void MainWindow::timerPollXbeeTimeout() {
+    terminal->addTerminalText(">> GCS");
     xb->unicast(addressInband, "GCS");
+    terminal->addTerminalText(">> GCS");
 
     //radioServer.readPendingDatagrams();
 }
@@ -284,6 +288,7 @@ void MainWindow::on_pushButtonPreset5_clicked() {
 }
 
 void MainWindow::on_pushButtonSTOP_clicked() {
+    terminal->addTerminalText(">> SRS");
     xb->unicast(addressInband, "SRS");
 }
 
@@ -364,36 +369,42 @@ void MainWindow::activateBand(enum band bandIndex) {
 
     switch(bandIndex) {
         case BAND_160:
+	    terminal->addTerminalText(">> SDO HI 12");
             xb->unicast(addressInband, "SDO HI 12");
             ui->pushButton160m->setChecked(true);
             ui->labelCurrentBandValue->setText("160m");
             ui->labelLEDBand160->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_80:
+	    terminal->addTerminalText(">> SDO HI 11");
             xb->unicast(addressInband, "SDO HI 11");
             ui->pushButton80m->setChecked(true);
             ui->labelCurrentBandValue->setText("80m");
             ui->labelLEDBand80->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_40:
+	    terminal->addTerminalText(">> SDO HI 10");
             xb->unicast(addressInband, "SDO HI 10");
             ui->pushButton40m->setChecked(true);
             ui->labelCurrentBandValue->setText("40m");
             ui->labelLEDBand40->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_20:
+	    terminal->addTerminalText(">> SDO HI 9");
             xb->unicast(addressInband, "SDO HI 9");
             ui->pushButton20m->setChecked(true);
             ui->labelCurrentBandValue->setText("20m");
             ui->labelLEDBand20->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_15:
+	    terminal->addTerminalText(">> SDO HI 9");
             xb->unicast(addressInband, "SDO HI 9");
             ui->pushButton15m->setChecked(true);
             ui->labelCurrentBandValue->setText("15m");
             ui->labelLEDBand15->setPixmap(QPixmap(PIXMAP_GREEN_ON));
             break;
         case BAND_10:
+	    terminal->addTerminalText(">> SDO HI 9");
             xb->unicast(addressInband, "SDO HI 9");
             ui->pushButton10m->setChecked(true);
             ui->labelCurrentBandValue->setText("10m");
@@ -410,31 +421,37 @@ void MainWindow::deactivateBand(enum band bandIndex) {
     qDebug() << "Deactivate Band: " << bandIndex;
     switch(bandIndex) {
         case BAND_160:
+	    terminal->addTerminalText(">> SDO LO 12");
             xb->unicast(addressInband, "SDO LO 12");
             ui->pushButton160m->setChecked(false);
             ui->labelLEDBand160->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_80:
+	    terminal->addTerminalText(">> SDO LO 11");
             xb->unicast(addressInband, "SDO LO 11");
             ui->pushButton80m->setChecked(false);
             ui->labelLEDBand80->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_40:
+	    terminal->addTerminalText(">> SDO LO 10");
             xb->unicast(addressInband, "SDO LO 10");
             ui->pushButton40m->setChecked(false);
             ui->labelLEDBand40->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_20:
+            terminal->addTerminalText(">> SDO LO 9");
             xb->unicast(addressInband, "SDO LO 9");
             ui->pushButton20m->setChecked(false);
             ui->labelLEDBand20->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_15:
+	    terminal->addTerminalText(">> SDO LO 9");
             xb->unicast(addressInband, "SDO LO 9");
             ui->pushButton15m->setChecked(false);
             ui->labelLEDBand15->setPixmap(QPixmap(PIXMAP_BLANK));
             break;
         case BAND_10:
+	    terminal->addTerminalText(">> SDO LO 9");
             xb->unicast(addressInband, "SDO LO 9");
             ui->pushButton10m->setChecked(false);
             ui->labelLEDBand10->setPixmap(QPixmap(PIXMAP_BLANK));
@@ -519,10 +536,12 @@ void MainWindow::on_pushButtonNone_clicked() {
 }
 
 void MainWindow::on_pushButtonClearErrors_clicked() {
+    terminal->addTerminalText(">> SEC");
     xb->unicast(addressInband, "SEC");
 }
 
 void MainWindow::on_pushButtonTerminal_clicked() {
+    terminal->hide();
     terminal->show();
 }
 
@@ -545,22 +564,28 @@ void MainWindow::radioDataAvailable(char *data, qint64 size, QHostAddress *fromA
     if (ui->checkBoxBandControlAuto) {
         if (txFreq != currTXFreq) {
             if ((txFreq > 10000) && txFreq < 250000) {
-                on_pushButton160m_clicked(true);
+                if (currentBand != BAND_160)
+			on_pushButton160m_clicked(true);
             }
             else if ((txFreq > 250000) && txFreq < 400000) {
-                on_pushButton80m_clicked(true);
+		 if (currentBand != BAND_80)
+                	on_pushButton80m_clicked(true);
             }
             else if ((txFreq > 650000) && txFreq < 800000) {
-                on_pushButton40m_clicked(true);
+		 if (currentBand != BAND_40)
+                	on_pushButton40m_clicked(true);
             }
             else if ((txFreq > 1300000) && txFreq < 1500000) {
-                on_pushButton20m_clicked(true);
+		 if (currentBand != BAND_20)
+                	on_pushButton20m_clicked(true);
             }
             else if ((txFreq > 2000000) && txFreq < 2200000) {
-                on_pushButton15m_clicked(true);
+		 if (currentBand != BAND_15)
+                	on_pushButton15m_clicked(true);
             }
             else if ((txFreq > 2700000) && txFreq < 3000000) {
-                on_pushButton10m_clicked(true);
+		 if (currentBand != BAND_10)
+                	on_pushButton10m_clicked(true);
             }
             else
                 on_pushButtonNone_clicked();
