@@ -128,6 +128,7 @@ private slots:
     void quitApplication();
     void on_pushButtonTerminal_clicked();
     void radioDataAvailable(char *data, qint64 size, QHostAddress *fromAddr, quint16 *port);
+    void on_pushButtonQuit_clicked();
 };
 
 #endif // MAINWINDOW_H

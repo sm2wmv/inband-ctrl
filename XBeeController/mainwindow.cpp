@@ -594,3 +594,15 @@ void MainWindow::radioDataAvailable(char *data, qint64 size, QHostAddress *fromA
         }
     }
 }
+
+void MainWindow::on_pushButtonQuit_clicked()
+{
+    deactivateBand(BAND_160);
+    deactivateBand(BAND_80);
+    deactivateBand(BAND_40);
+    deactivateBand(BAND_20);
+    deactivateBand(BAND_15);
+    deactivateBand(BAND_10);
+
+    QTimer::singleShot(2000, this, SLOT(quitApplication()));
+}
