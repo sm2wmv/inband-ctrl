@@ -86,6 +86,7 @@ private:
     void activateBand(enum band bandIndex);
     UDPServer *radioServer;
     int currTXFreq;
+    int prevTXFreq;
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent ( QMouseEvent * event );
