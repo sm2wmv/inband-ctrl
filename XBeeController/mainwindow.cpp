@@ -70,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
     radioServer->initSocket();
     connect(radioServer, SIGNAL(dataAvailable(char *,qint64, QHostAddress *, quint16 *)),SLOT(radioDataAvailable(char *,qint64, QHostAddress *, quint16 *)));
     this->setCursor(QCursor( Qt::BlankCursor ));
+
+qDebug() << "Inband control started\n";
 }
 
 MainWindow::~MainWindow() {
@@ -548,49 +550,57 @@ void MainWindow::on_pushButtonTerminal_clicked() {
 void MainWindow::radioDataAvailable(char *data, qint64 size, QHostAddress *fromAddr, quint16 *port) {
     QXmlStreamReader xml(data);
 
-    int txFreq = 0;
+    int radioNr = 0;
+    QString stationID = "";
 
     while(!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
             QString name = xml.name().toString();
 
+	    if (name == "Station") 
+	        stationID =  xml.readElementText();
+
+            if (name == "RadioNr")
+	        radioNr =  xml.readElementText().toInt();
+
             if (name == "TXFreq") {
-                txFreq = xml.readElementText().toInt();
+		if (radioNr == 2) //If M/S cross this out
+                    currTXFreq = xml.readElementText().toInt();
             }
         }
     }
 
     if (ui->checkBoxBandControlAuto) {
-        if (txFreq != currTXFreq) {
-            if ((txFreq > 10000) && txFreq < 250000) {
+        if (prevTXFreq != currTXFreq) {
+            if ((currTXFreq > 10000) && currTXFreq < 250000) {
                 if (currentBand != BAND_160)
 			on_pushButton160m_clicked(true);
             }
-            else if ((txFreq > 250000) && txFreq < 400000) {
+            else if ((currTXFreq > 250000) && currTXFreq < 400000) {
 		 if (currentBand != BAND_80)
                 	on_pushButton80m_clicked(true);
             }
-            else if ((txFreq > 650000) && txFreq < 800000) {
+            else if ((currTXFreq > 650000) && currTXFreq < 800000) {
 		 if (currentBand != BAND_40)
                 	on_pushButton40m_clicked(true);
             }
-            else if ((txFreq > 1300000) && txFreq < 1500000) {
+            else if ((currTXFreq > 1300000) && currTXFreq < 1500000) {
 		 if (currentBand != BAND_20)
                 	on_pushButton20m_clicked(true);
             }
-            else if ((txFreq > 2000000) && txFreq < 2200000) {
+            else if ((currTXFreq > 2000000) && currTXFreq < 2200000) {
 		 if (currentBand != BAND_15)
                 	on_pushButton15m_clicked(true);
             }
-            else if ((txFreq > 2700000) && txFreq < 3000000) {
+            else if ((currTXFreq > 2700000) && currTXFreq < 3000000) {
 		 if (currentBand != BAND_10)
                 	on_pushButton10m_clicked(true);
             }
             else
                 on_pushButtonNone_clicked();
 
-            currTXFreq = txFreq;
+	    prevTXFreq = currTXFreq;
         }
     }
 }
