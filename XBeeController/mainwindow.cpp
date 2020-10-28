@@ -565,8 +565,10 @@ void MainWindow::radioDataAvailable(char *data, qint64 size, QHostAddress *fromA
 	        radioNr =  xml.readElementText().toInt();
 
             if (name == "TXFreq") {
-		if (radioNr == 2) //If M/S cross this out
+//		if (radioNr == 2) //If M/S cross this out
                     currTXFreq = xml.readElementText().toInt();
+		QString str = "Got UDP MSG Freq: " + QString::number(currTXFreq);
+		terminal->addTerminalText(str);
             }
         }
     }
