@@ -16,62 +16,65 @@
 #define PIXMAP_YELLOW_OFF QCoreApplication::applicationDirPath()+"/leds/led_yellow_off_15x15.png"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWindow) {
-    ui->setupUi(this);
+  ui->setupUi(this);
 
-    addressHiZ = QByteArray::fromHex("0013A20040D50A4D");
-    addressInband = QByteArray::fromHex("0013A20040E328ED");
+  addressInband = QByteArray::fromHex("0013A20040E328ED");
 
-    //Should not be a direct path but easier when using QtCreator
-    imagePath = "/home/pi/inband-ctrl/XBeeController/images/map2.png";
-    sizeWidth = 600;
-    sizeHeight = 600;
+  //Should not be a direct path but easier when using QtCreator
+  imagePath = "/home/pi/inband-ctrl/XBeeController/images/map2.png";
+  sizeWidth = 600;
+  sizeHeight = 600;
 
-    currAzimuthAngle = 180;
-    targetAzimuthAngle = 180;
-    antBeamWidth = 62;
+  currAzimuthAngle = 180;
+  targetAzimuthAngle = 180;
+  antBeamWidth = 62;
 
-    serial = new QSerialPort();
-    serial->setPortName("/dev/ttyUSB0");
+  serial = new QSerialPort();
+  serial->setPortName("/dev/ttyUSB0");
 
-    xb = new QTXB(serial);
+  xb = new QTXB(serial);
 
-    connect(xb, SIGNAL(receivedATCommandResponse(ATCommandResponse*)), this, SLOT(parseXBeeATCommandResponse(ATCommandResponse*)));
-    connect(xb, SIGNAL(receivedModemStatus(ModemStatus*)), this, SLOT(parseXBeeModemStatus(ModemStatus*)));
-    connect(xb, SIGNAL(receivedTransmitStatus(TransmitStatus*)), this, SLOT(parseXBeeTransmitStatus(TransmitStatus*)));
-    connect(xb, SIGNAL(receivedRXIndicator(RXIndicator*)), this, SLOT(parseXBeeRXIndicator(RXIndicator*)));
-    connect(xb, SIGNAL(receivedRXIndicatorExplicit(RXIndicatorExplicit*)), this, SLOT(parseXBeeRXIndicatorExplicit(RXIndicatorExplicit*)));
-    connect(xb, SIGNAL(receivedNodeIdentificationIndicator(NodeIdentificationIndicator*)), this, SLOT(parseXBeeNodeIdentificationIndicator(NodeIdentificationIndicator*)));
-    connect(xb, SIGNAL(receivedRemoteCommandResponse(RemoteCommandResponse*)), this, SLOT(parseXBeeRemoteCommandResponse(RemoteCommandResponse*)));
+  connect(xb, SIGNAL(receivedATCommandResponse(ATCommandResponse*)), this, SLOT(parseXBeeATCommandResponse(ATCommandResponse*)));
+  connect(xb, SIGNAL(receivedModemStatus(ModemStatus*)), this, SLOT(parseXBeeModemStatus(ModemStatus*)));
+  connect(xb, SIGNAL(receivedTransmitStatus(TransmitStatus*)), this, SLOT(parseXBeeTransmitStatus(TransmitStatus*)));
+  connect(xb, SIGNAL(receivedRXIndicator(RXIndicator*)), this, SLOT(parseXBeeRXIndicator(RXIndicator*)));
+  connect(xb, SIGNAL(receivedRXIndicatorExplicit(RXIndicatorExplicit*)), this, SLOT(parseXBeeRXIndicatorExplicit(RXIndicatorExplicit*)));
+  connect(xb, SIGNAL(receivedNodeIdentificationIndicator(NodeIdentificationIndicator*)), this, SLOT(parseXBeeNodeIdentificationIndicator(NodeIdentificationIndicator*)));
+  connect(xb, SIGNAL(receivedRemoteCommandResponse(RemoteCommandResponse*)), this, SLOT(parseXBeeRemoteCommandResponse(RemoteCommandResponse*)));
 
-    timerPollXbee = new QTimer(this);
-    connect(timerPollXbee, SIGNAL(timeout()), this, SLOT(timerPollXbeeTimeout()));
-    timerPollXbee->start(1000);
+  timerPollXbee = new QTimer(this);
+  connect(timerPollXbee, SIGNAL(timeout()), this, SLOT(timerPollXbeeTimeout()));
+  timerPollXbee->start(1000);
 
-    image = QImage(imagePath);
+  image = QImage(imagePath);
 
-    image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied ,Qt::ColorOnly);
-    terminal = new Terminal();
-    terminal->setXBeeController(xb,getAddressInband());
+  image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied ,Qt::ColorOnly);
+  terminal = new Terminal();
+  terminal->setXBeeController(xb,getAddressInband());
 
-    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDBand10->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDBand15->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDBand20->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDBand40->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDBand80->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDBand160->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+  ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDBand10->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDBand15->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDBand20->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDBand40->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDBand80->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDBand160->setPixmap(QPixmap(PIXMAP_BLANK));
 
-    currTXFreq = 0;
+  currTXFreq = 0;
 
-    radioServer = new UDPServer();
-    radioServer->initSocket();
-    connect(radioServer, SIGNAL(dataAvailable(char *,qint64, QHostAddress *, quint16 *)),SLOT(radioDataAvailable(char *,qint64, QHostAddress *, quint16 *)));
-    this->setCursor(QCursor( Qt::BlankCursor ));
+  radioServer = new UDPServer();
+  radioServer->initSocket();
+  connect(radioServer, SIGNAL(dataAvailable(char *,qint64, QHostAddress *, quint16 *)),SLOT(radioDataAvailable(char *,qint64, QHostAddress *, quint16 *)));
+  //this->setCursor(QCursor( Qt::BlankCursor ));
 
-qDebug() << "Inband control started\n";
+  managerWebSwitch = new QNetworkAccessManager();
+
+
+
+  qDebug() << "Inband control started\n";
 }
 
 MainWindow::~MainWindow() {
@@ -118,10 +121,6 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 
 QByteArray MainWindow::getAddressInband() {
     return(addressInband);
-}
-
-QByteArray MainWindow::getAddressHiZ() {
-    return(addressHiZ);
 }
 
 void MainWindow::setTargetDir(int newDir) {
@@ -294,76 +293,52 @@ void MainWindow::on_pushButtonSTOP_clicked() {
     xb->unicast(addressInband, "SRS");
 }
 
-void MainWindow::sendXbeeHiZDirNW1() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "D4", QByteArray::fromHex("04"));
-}
-
-void MainWindow::sendXbeeHiZDirNW2() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "P2", QByteArray::fromHex("04"));
-}
-
-void MainWindow::sendXbeeHiZDirNE1() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "D4", QByteArray::fromHex("04"));
-}
-
-void MainWindow::sendXbeeHiZDirNE2() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "P2", QByteArray::fromHex("05"));
-}
-
-void MainWindow::sendXbeeHiZDirSE1() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "D4", QByteArray::fromHex("05"));
-}
-
-void MainWindow::sendXbeeHiZDirSE2() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "P2", QByteArray::fromHex("04"));
-}
-
-void MainWindow::sendXbeeHiZDirSW1() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "D4", QByteArray::fromHex("05"));
-}
-
-void MainWindow::sendXbeeHiZDirSW2() {
-    xb->unicastRemoteCommandRequest(addressHiZ, "P2", QByteArray::fromHex("05"));
-}
-
 void MainWindow::on_pushButtonHiZNW_clicked() {
-    QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirNW1()));
-    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirNW2()));
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/off/1"));
+  managerWebSwitch->get(request);
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/off/2"));
+  managerWebSwitch->get(request);
 
-    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
-    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+  ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
 }
 
 void MainWindow::on_pushButtonHiZNE_clicked() {
-    QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirNE1()));
-    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirNE2()));
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/off/2"));
+  managerWebSwitch->get(request);
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/on/1"));
+  managerWebSwitch->get(request);
 
-    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_GREEN_ON));
-    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+  ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
 }
 
 void MainWindow::on_pushButtonHiZSE_clicked() {
-    QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirSE1()));
-    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirSE2()));
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/on/1"));
+  managerWebSwitch->get(request);
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/on/2"));
+  managerWebSwitch->get(request);
 
-    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_GREEN_ON));
-    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+  ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_BLANK));
 }
 
 void MainWindow::on_pushButtonHiZSW_clicked() {
-    QTimer::singleShot(0, this, SLOT(sendXbeeHiZDirSW1()));
-    QTimer::singleShot(500, this, SLOT(sendXbeeHiZDirSW2()));
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/on/1"));
+  managerWebSwitch->get(request);
+  request.setUrl(QUrl("http://192.168.1.45/relaycontrol/off/2"));
+  managerWebSwitch->get(request);
 
-    ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
-    ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
+  ui->labelLEDHiZNW->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZNE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSE->setPixmap(QPixmap(PIXMAP_BLANK));
+  ui->labelLEDHiZSW->setPixmap(QPixmap(PIXMAP_GREEN_ON));
 }
 
 void MainWindow::activateBand(enum band bandIndex) {
@@ -565,8 +540,10 @@ void MainWindow::radioDataAvailable(char *data, qint64 size, QHostAddress *fromA
 	        radioNr =  xml.readElementText().toInt();
 
             if (name == "TXFreq") {
-		if (radioNr == 2) //If M/S cross this out
+//		if (radioNr == 2) //If M/S cross this out
                     currTXFreq = xml.readElementText().toInt();
+		QString str = "Got UDP MSG Freq: " + QString::number(currTXFreq);
+		terminal->addTerminalText(str);
             }
         }
     }
@@ -613,6 +590,12 @@ void MainWindow::on_pushButtonQuit_clicked()
     deactivateBand(BAND_20);
     deactivateBand(BAND_15);
     deactivateBand(BAND_10);
+
+
+    request.setUrl(QUrl("http://192.168.1.45/relaycontrol/off/1"));
+    managerWebSwitch->get(request);
+    request.setUrl(QUrl("http://192.168.1.45/relaycontrol/off/2"));
+    managerWebSwitch->get(request);
 
     QTimer::singleShot(2000, this, SLOT(quitApplication()));
 }

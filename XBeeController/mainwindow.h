@@ -13,6 +13,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
 #include <QMouseEvent>
 #include <QColor>
 #include <QBrush>
@@ -56,7 +58,6 @@ public:
     void updateGUI(QString command);
     void setTargetDir(int newDir);
     QByteArray getAddressInband();
-    QByteArray getAddressHiZ();
 private:
     Ui::MainWindow *ui;
     Terminal *terminal;
@@ -78,7 +79,6 @@ private:
     QTimer *timerPollXbee;
     QTXB *xb;
     QSerialPort *serial;
-    QByteArray addressHiZ;
     QByteArray addressInband;
     void parseGCSData(QList<QByteArray> *list);
     enum band currentBand;
@@ -87,6 +87,8 @@ private:
     UDPServer *radioServer;
     int currTXFreq;
     int prevTXFreq;
+    QNetworkAccessManager *managerWebSwitch;
+    QNetworkRequest request;
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent ( QMouseEvent * event );
@@ -109,14 +111,6 @@ private slots:
     void on_pushButtonHiZNE_clicked();
     void on_pushButtonHiZSE_clicked();
     void on_pushButtonHiZSW_clicked();
-    void sendXbeeHiZDirNW1();
-    void sendXbeeHiZDirNE1();
-    void sendXbeeHiZDirSE1();
-    void sendXbeeHiZDirSW1();
-    void sendXbeeHiZDirNW2();
-    void sendXbeeHiZDirNE2();
-    void sendXbeeHiZDirSE2();
-    void sendXbeeHiZDirSW2();
     void on_pushButton160m_clicked(bool checked);
     void on_pushButton80m_clicked(bool checked);
     void on_pushButton40m_clicked(bool checked);

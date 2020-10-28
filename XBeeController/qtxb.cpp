@@ -171,6 +171,7 @@ void QTXB::readData()
         }
     }
 }
+
 void QTXB::processPacket(QByteArray packet){
 
     unsigned packetType = (unsigned char)packet.at(3);
